@@ -1,0 +1,13 @@
+{
+  "_comentario": "Dados que o repositório não registra sozinho: nome do projeto, marcos, decisões, dúvidas e notas das rodadas. Edite à mão; o painel recarrega sozinho.",
+  "projeto": "Meu projeto",
+  "marcos": [
+    { "nome": "M1 Fundação", "de": 0, "ate": 3 },
+    { "nome": "M2 Núcleo", "de": 4, "ate": 9 }
+  ],
+  "rodadas": {},
+  "registros": [
+    { "id": "D01", "tipo": "Decisão do orquestrador", "tema": "Exemplo", "texto": "Decisão tomada sem cobertura da spec, com o motivo", "situacao": "aberta" },
+    { "id": "P01", "tipo": "Pendência do dono", "tema": "Exemplo", "texto": "Algo que só o dono do projeto pode resolver", "situacao": "aberta" }
+  ]
+}

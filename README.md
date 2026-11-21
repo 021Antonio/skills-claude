@@ -4,6 +4,12 @@
 
 Transforma uma ideia ou um projeto existente em spec, tarefas por modelo e tempo, TDD obrigatório e execução orquestrada: a conversa principal planeja, decide e revisa; cada tarefa roda num processo headless do Claude Code com o modelo definido, num worktree próprio.
 
+Vem com o **painel da obra** (`projeto-por-tarefas-autonomas/painel-obra/`): uma página local que atualiza sozinha e mostra as tarefas, o que está rodando, custos, rodadas, histórico e decisões. Só precisa de Node. Ao aplicar a skill num projeto, copie a pasta para `scripts/painel-obra/`, ajuste o `dados.json` e rode:
+
+```bash
+node scripts/painel-obra/servidor.js   # abre em http://localhost:4440
+```
+
 ### Instalar no Claude Code
 
 Para todos os projetos:

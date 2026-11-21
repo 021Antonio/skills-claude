@@ -212,6 +212,29 @@ Para cada tarefa, na ordem do plano:
 
 Escrita de documentação curta, plano e dúvidas ficam com o orquestrador. Ao fim de cada marco: `superpowers:requesting-code-review`, PR, tag pelo usuário, `graphify --update` se houver grafo.
 
+### Painel da obra (acompanhamento ao vivo)
+
+A pasta `painel-obra/` desta skill é um painel web local, sem dependências (só Node), que mostra a obra em tempo real: tarefas por épico, o que está rodando com relógio, o que espera revisão, a fila, o grafo de dependências, as rodadas no tempo com custo e turnos, o histórico por dia e as decisões e pendências. Ele só lê o que o projeto já registra; nada é digitado no painel.
+
+Instalar na Fase 4, junto com os scripts:
+
+1. Copiar a pasta `painel-obra/` desta skill para `scripts/painel-obra/` do projeto (com `test/`).
+2. Editar `scripts/painel-obra/dados.json`: `projeto` (nome no título), `marcos` (faixas de id de tarefa por épico) e `registros` (decisões do orquestrador, dúvidas, pendências do dono, com `situacao` aberta ou fechada).
+3. Rodar `node scripts/painel-obra/servidor.js` em segundo plano e abrir `http://localhost:4440` (porta em `PAINEL_PORTA`). A página atualiza sozinha por SSE; editar o `index.html` vale no próximo F5.
+4. Testes do painel: `node --test scripts/painel-obra/test/*.test.js`.
+
+De onde vêm os dados, e o que o `run-task` precisa gravar:
+
+| Fonte | Uso no painel |
+| --- | --- |
+| `tasks/*.md` (frontmatter `id`, `title`, `model`, `weight`, `depends_on`) | tarefas, épicos, fila, grafo, estimativa |
+| `runs/NN-AAAAMMDD-HHmmss-modelo.json` | uma rodada; criado **vazio no início** (vazio = rodando), com a saída JSON do `claude -p` no fim (custo, turnos, duração) |
+| `runs/...meta.json` | `tetoUsd`, `motivo` (primeira rodada ou feedback da revisão) e `interrompidaEm` quando o executor é encerrado por tempo |
+| git | branch `task/NN-*` com commit = aguardando PR; worktree com mudança sem commit = em revisão; merge na `main` = concluída |
+| `docs/historico.txt` | linha do tempo do dia; anotar com `node scripts/painel-obra/historico.js TIPO "texto"` (tipos: OBJETIVO, PEDIDO, DECISAO, TAREFA, RODADA, REVISAO, PR, MERGE, DEPLOY, PROBLEMA, NOTA) |
+
+O orquestrador anota no histórico os pedidos do usuário, decisões, revisões, PRs e merges; o `run-task` anota o início e o fim de cada rodada (`RODADA`). O servidor escuta só em `127.0.0.1`: para outra pessoa acompanhar de fora da máquina, usar um túnel com acesso restrito, nunca abrir a porta na rede.
+
 ## Fase 7: execução noturna (opcional, sem orquestrador)
 
 Quando o usuário quer rodar tudo sem acompanhar: `scripts/run_night.*` (e contêiner, se pedido) com o mesmo executor da Fase 6, em sequência:
@@ -252,7 +275,7 @@ Lição de incidente real: um ponta a ponta subiu o serviço com a `DB_URL` do `
 
 ## References: `scripts/run-task.ps1` (modelo)
 
-Adapte o portão e a lista de ferramentas ao projeto. Pontos que não podem faltar: worktree por tarefa, modelo do frontmatter com override, teto de custo, `--output-format json` gravado em `runs/`, sem commit pelo executor, `-DryRun`.
+Adapte o portão e a lista de ferramentas ao projeto. Pontos que não podem faltar: worktree por tarefa, modelo do frontmatter com override, teto de custo, `--output-format json` gravado em `runs/`, sem commit pelo executor, `-DryRun`. Para o painel da obra: criar o `.json` da rodada vazio antes de disparar, gravar o `.meta.json` com `tetoUsd` e `motivo` (e `interrompidaEm` se encerrar por tempo) e anotar `RODADA` no histórico no início e no fim.
 
 ```powershell
 param([Parameter(Mandatory)][string]$Task, [string]$Model, [double]$BudgetUsd = 0, [string]$Base = 'HEAD', [switch]$DryRun)
